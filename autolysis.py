@@ -72,6 +72,40 @@ def generate_narrative(analysis):
         'Content-Type': 'application/json'
     }
     prompt = f"Provide a detailed analysis based on the following data summary: {analysis}"
+    prompt = f"""
+Provide a detailed analysis based on the following data summary: {analysis}.
+
+Please ensure that your analysis includes the following:
+
+1. **Repository Requirements:**
+   - Verify that your repository is **public** and has an **MIT License**.
+   - Ensure the following files are present:
+     - `autolysis.py`
+     - `<dataset_name>/README.md` and `<dataset_name>/*.png` (replace <dataset_name> with the dataset's name, e.g., "goodreads", "happiness", "media", etc.)
+
+2. **Execution Requirements:**
+   - Confirm that running `uv run autolysis.py <dataset_name>.csv` works **without errors** using the instructor's `AIPROXY_TOKEN` environment variable.
+   - Ensure that the following runs successfully and generates the correct output for any dataset:
+     - `uv run autolysis.py <dataset_name>.csv` (Creates `<dataset_name>/README.md` and `<dataset_name>/*.png` files)
+   
+3. **Code Quality:**
+   - Make sure your code is well structured, logically organized, and adheres to a **consistent coding style**.
+   - Utilize appropriate **statistical methods** and **innovative analysis** in your code. The analysis should adapt dynamically based on the dataset's characteristics.
+   - Use effective **visualizations** that have titles, axis labels, and legends, and incorporate appropriate color schemes. The visualizations should be meaningful for any dataset.
+
+4. **Narrative Crafting:**
+   - Craft a clear, context-rich narrative that provides an in-depth description of the data, the analysis performed, the insights gained, and their implications. This should be adaptable to any dataset.
+   - Properly **format the narrative** in Markdown with well-structured sections (e.g., data description, analysis, insights, etc.).
+   - Integrate the **visualizations** at relevant points in the narrative to enhance the understanding of the findings.
+
+5. **LLM Usage:**
+   - Minimize token usage by sending concise prompts and avoid sending large data in the prompt.
+   - Implement dynamic prompts and function calls to guide the LLM efficiently.
+   - If applicable, utilize **vision capabilities** and **multiple LLM calls** for agentic workflows to improve the analysis.
+
+Please ensure the output files (`README.md` and `.png`) generated are well-designed and relevant, illustrating key findings of your analysis, and that they adapt to the characteristics of any dataset.
+"""
+
     data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": prompt}]
