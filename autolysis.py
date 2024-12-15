@@ -73,38 +73,42 @@ def generate_narrative(analysis):
     }
     prompt = f"Provide a detailed analysis based on the following data summary: {analysis}"
     prompt = f"""
-Provide a detailed analysis based on the following data summary: {analysis}.
+Analyze the data from the following dataset. , 
 
-Please ensure that your analysis includes the following:
+Your script should work with any valid CSV file.Provide a detailed analysis based on the following data summary: {analysis}
 
-1. **Repository Requirements:**
-   - Verify that your repository is **public** and has an **MIT License**.
-   - Ensure the following files are present:
-     - `autolysis.py`
-     - `<dataset_name>/README.md` and `<dataset_name>/*.png` (replace <dataset_name> with the dataset's name, e.g., "goodreads", "happiness", "media", etc.)
+Since you don't know in advance what the data looks like, don't make assumptions. Instead, perform a generic analysis that will apply to all datasets. For example:
 
-2. **Execution Requirements:**
-   - Confirm that running `uv run autolysis.py <dataset_name>.csv` works **without errors** using the instructor's `AIPROXY_TOKEN` environment variable.
-   - Ensure that the following runs successfully and generates the correct output for any dataset:
-     - `uv run autolysis.py <dataset_name>.csv` (Creates `<dataset_name>/README.md` and `<dataset_name>/*.png` files)
-   
-3. **Code Quality:**
-   - Make sure your code is well structured, logically organized, and adheres to a **consistent coding style**.
-   - Utilize appropriate **statistical methods** and **innovative analysis** in your code. The analysis should adapt dynamically based on the dataset's characteristics.
-   - Use effective **visualizations** that have titles, axis labels, and legends, and incorporate appropriate color schemes. The visualizations should be meaningful for any dataset.
+1. Provide summary statistics for the numeric columns (mean, median, std, min, max, etc.).
+2. Count the missing values in each column.
+3. Generate a correlation matrix for the numeric columns.
+4. Detect and handle any outliers or anomalies in the data.
+5. Apply clustering algorithms to detect groups or patterns in the data (if applicable).
+6. If there are time-related columns, perform time series analysis to identify trends.
+7. If location or geographic data exists, perform geographic analysis.
+8. Use network analysis to detect patterns of connectivity (if relevant).
+9. Provide suggestions for further analyses, such as regression analysis or feature importance.
 
-4. **Narrative Crafting:**
-   - Craft a clear, context-rich narrative that provides an in-depth description of the data, the analysis performed, the insights gained, and their implications. This should be adaptable to any dataset.
-   - Properly **format the narrative** in Markdown with well-structured sections (e.g., data description, analysis, insights, etc.).
-   - Integrate the **visualizations** at relevant points in the narrative to enhance the understanding of the findings.
+Please keep in mind:
 
-5. **LLM Usage:**
-   - Minimize token usage by sending concise prompts and avoid sending large data in the prompt.
-   - Implement dynamic prompts and function calls to guide the LLM efficiently.
-   - If applicable, utilize **vision capabilities** and **multiple LLM calls** for agentic workflows to improve the analysis.
+- Do not send the entire dataset to the LLM. Focus on sending summaries, statistics, or specific pieces of analysis that will be helpful.
+- If one type of analysis doesn't work, feel free to try another or ask the LLM for further analysis suggestions.
 
-Please ensure the output files (`README.md` and `.png`) generated are well-designed and relevant, illustrating key findings of your analysis, and that they adapt to the characteristics of any dataset.
+For code:
+- Ask the LLM to provide Python code for the above analyses. Use caution, as running the LLM’s code may result in errors and cause your script to fail. Ensure to catch any exceptions.
+- Export the resulting visualizations (e.g., heatmaps, histograms, etc.) as PNG files, and save them with distinct file names.
+
+For summaries:
+- After performing the analysis, ask the LLM to summarize the findings. Include insights discovered, and implications of those findings (e.g., what decisions to make based on these insights).
+- Write the analysis and insights into a well-structured README.md file.
+
+For visualizations:
+- Use libraries like Seaborn or Matplotlib to create and export charts. Ensure they are labeled properly with titles, axis labels, and legends.
+- If the analysis includes a correlation matrix, visualize it as a heatmap. If it includes time series analysis, plot the data over time.
+
+Please remember to save all generated charts as PNG files, and do not send the entire dataset to the LLM.
 """
+
 
     data = {
         "model": "gpt-4o-mini",
