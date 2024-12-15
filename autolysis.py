@@ -9,17 +9,23 @@
 #   "python-dotenv",
 #   "tenacity",
 # ]
-# ///import os
+# ///import osimport os
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import openai
 import subprocess
+import shutil
+import logging
 
 # Constants
 LLM_MODEL = "gpt-4o-mini"
 DEFAULT_OUTPUT_DIR = "output"
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 # Ensure AI Proxy Token is set
 API_KEY = os.getenv("AIPROXY_TOKEN")
@@ -31,24 +37,22 @@ def load_data(file_path):
     """Load dataset from the provided file path."""
     try:
         data = pd.read_csv(file_path)
-        print(f"Dataset loaded successfully with {data.shape[0]} rows and {data.shape[1]} columns.")
+        logger.info(f"Dataset loaded successfully with {data.shape[0]} rows and {data.shape[1]} columns.")
         return data
     except Exception as e:
-        # Ensure msg is initialized
         msg = f"Error loading dataset from {file_path}."
-        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
         sys.exit(1)
 
 def perform_analysis(data):
     """Perform basic statistical and exploratory data analysis."""
     try:
         summary = data.describe(include='all')
-        print("Generated statistical summary.")
+        logger.info("Generated statistical summary.")
         return summary
     except Exception as e:
-        # Ensure msg is initialized
         msg = "Error performing data analysis."
-        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
         sys.exit(1)
 
 def generate_visualizations(data, output_dir):
@@ -62,13 +66,12 @@ def generate_visualizations(data, output_dir):
         heatmap_path = os.path.join(output_dir, "correlation_heatmap.png")
         plt.title("Correlation Heatmap")
         plt.savefig(heatmap_path)
-        print(f"Saved heatmap to {heatmap_path}")
+        logger.info(f"Saved heatmap to {heatmap_path}")
         
         return [heatmap_path]
     except Exception as e:
-        # Ensure msg is initialized
         msg = "Error generating visualizations."
-        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
         sys.exit(1)
 
 def generate_narrative(data_summary, visualization_paths):
@@ -88,12 +91,11 @@ def generate_narrative(data_summary, visualization_paths):
         )
 
         narrative = response.choices[0].text.strip()
-        print("Generated narrative using LLM.")
+        logger.info("Generated narrative using LLM.")
         return narrative
     except Exception as e:
-        # Ensure msg is initialized
         msg = "Error generating narrative using LLM."
-        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
         sys.exit(1)
 
 def save_results(narrative, output_dir):
@@ -103,11 +105,10 @@ def save_results(narrative, output_dir):
         with open(md_file_path, "w") as f:
             f.write("# Analysis Results\n\n")
             f.write(narrative)
-        print(f"Saved narrative to {md_file_path}")
+        logger.info(f"Saved narrative to {md_file_path}")
     except Exception as e:
-        # Ensure msg is initialized
         msg = "Error saving narrative to Markdown file."
-        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
         sys.exit(1)
 
 def run_uv_script(script_path, input_csv):
@@ -115,29 +116,33 @@ def run_uv_script(script_path, input_csv):
     try:
         command = ["uv", "run", script_path, input_csv]
         result = subprocess.run(command, capture_output=True, text=True, timeout=180)
-        print(result.stdout)
+        logger.info(result.stdout)
         if result.returncode != 0:
-            # Ensure msg is initialized
             msg = f"Error running script {script_path}."
-            log(f"{msg} [red]UNEXPECTED FAILURE[/red] {result.stderr}", last=True)
+            logger.error(f"{msg} UNEXPECTED FAILURE: {result.stderr}")
             sys.exit(result.returncode)
     except subprocess.TimeoutExpired:
-        # Ensure msg is initialized
         msg = "The script timed out."
-        log(f"{msg} [red]UNEXPECTED FAILURE[/red]", last=True)
+        logger.error(f"{msg} UNEXPECTED FAILURE")
         sys.exit(1)
     except Exception as e:
-        # Ensure msg is initialized
         msg = "Unexpected error while running script."
-        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
         sys.exit(1)
 
-def log(message, last=False):
-    """Logs messages to the console."""
-    print(message)
-    if last:
-        # Handle additional logging logic (e.g., saving to a file)
-        pass
+def clean_up_directory(repo_path):
+    """Attempt to delete a directory and handle errors."""
+    try:
+        shutil.rmtree(repo_path, ignore_errors=False)
+        logger.info(f"Successfully cleaned up the repository at {repo_path}")
+    except PermissionError as e:
+        msg = f"Permission denied while trying to remove {repo_path}."
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
+        sys.exit(1)
+    except Exception as e:
+        msg = f"Error cleaning up the repository at {repo_path}."
+        logger.error(f"{msg} UNEXPECTED FAILURE: {e}")
+        sys.exit(1)
 
 def main():
     """Main function to orchestrate the analysis pipeline."""
@@ -165,6 +170,10 @@ def main():
 
     # Run uv script for additional processing
     run_uv_script(os.path.join(output_dir, "autolysis.py"), input_csv)
+
+    # Clean up (example of where the permission issue might happen)
+    repo_path = "path_to_repo"
+    clean_up_directory(repo_path)
 
 if __name__ == "__main__":
     main()
