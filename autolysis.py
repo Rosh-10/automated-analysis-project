@@ -73,41 +73,14 @@ def generate_narrative(analysis):
     }
     prompt = f"Provide a detailed analysis based on the following data summary: {analysis}"
     prompt = f"""
-Analyze the data from the following dataset. , 
+You are a data analyst. Analyze the dataset in **{analysis}** dynamically. Avoid assumptions. 
 
-Your script should work with any valid CSV file.Provide a detailed analysis based on the following data summary: {analysis}
-
-Since you don't know in advance what the data looks like, don't make assumptions. Instead, perform a generic analysis that will apply to all datasets. For example:
-
-1. Provide summary statistics for the numeric columns (mean, median, std, min, max, etc.).
-2. Count the missing values in each column.
-3. Generate a correlation matrix for the numeric columns.
-4. Detect and handle any outliers or anomalies in the data.
-5. Apply clustering algorithms to detect groups or patterns in the data (if applicable).
-6. If there are time-related columns, perform time series analysis to identify trends.
-7. If location or geographic data exists, perform geographic analysis.
-8. Use network analysis to detect patterns of connectivity (if relevant).
-9. Provide suggestions for further analyses, such as regression analysis or feature importance.
-
-Please keep in mind:
-
-- Do not send the entire dataset to the LLM. Focus on sending summaries, statistics, or specific pieces of analysis that will be helpful.
-- If one type of analysis doesn't work, feel free to try another or ask the LLM for further analysis suggestions.
-
-For code:
-- Ask the LLM to provide Python code for the above analyses. Use caution, as running the LLM’s code may result in errors and cause your script to fail. Ensure to catch any exceptions.
-- Export the resulting visualizations (e.g., heatmaps, histograms, etc.) as PNG files, and save them with distinct file names.
-
-For summaries:
-- After performing the analysis, ask the LLM to summarize the findings. Include insights discovered, and implications of those findings (e.g., what decisions to make based on these insights).
-- Write the analysis and insights into a well-structured README.md file.
-
-For visualizations:
-- Use libraries like Seaborn or Matplotlib to create and export charts. Ensure they are labeled properly with titles, axis labels, and legends.
-- If the analysis includes a correlation matrix, visualize it as a heatmap. If it includes time series analysis, plot the data over time.
-
-Please remember to save all generated charts as PNG files, and do not send the entire dataset to the LLM.
+1. Summarize the data structure, missing values, and key statistics.
+2. Explore relationships, trends, outliers, and patterns.
+3. Generate meaningful visualizations and actionable insights.
+4. Narrate findings clearly and concisely.
 """
+
 
 
     data = {
