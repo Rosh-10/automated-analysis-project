@@ -9,8 +9,7 @@
 #   "python-dotenv",
 #   "tenacity",
 # ]
-# ///
-import os
+# ///import os
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -35,7 +34,9 @@ def load_data(file_path):
         print(f"Dataset loaded successfully with {data.shape[0]} rows and {data.shape[1]} columns.")
         return data
     except Exception as e:
-        print(f"Error loading dataset: {e}")
+        # Ensure msg is initialized
+        msg = f"Error loading dataset from {file_path}."
+        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
         sys.exit(1)
 
 def perform_analysis(data):
@@ -45,7 +46,9 @@ def perform_analysis(data):
         print("Generated statistical summary.")
         return summary
     except Exception as e:
-        print(f"Error in data analysis: {e}")
+        # Ensure msg is initialized
+        msg = "Error performing data analysis."
+        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
         sys.exit(1)
 
 def generate_visualizations(data, output_dir):
@@ -63,7 +66,9 @@ def generate_visualizations(data, output_dir):
         
         return [heatmap_path]
     except Exception as e:
-        print(f"Error generating visualizations: {e}")
+        # Ensure msg is initialized
+        msg = "Error generating visualizations."
+        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
         sys.exit(1)
 
 def generate_narrative(data_summary, visualization_paths):
@@ -86,7 +91,9 @@ def generate_narrative(data_summary, visualization_paths):
         print("Generated narrative using LLM.")
         return narrative
     except Exception as e:
-        print(f"Error generating narrative: {e}")
+        # Ensure msg is initialized
+        msg = "Error generating narrative using LLM."
+        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
         sys.exit(1)
 
 def save_results(narrative, output_dir):
@@ -98,7 +105,9 @@ def save_results(narrative, output_dir):
             f.write(narrative)
         print(f"Saved narrative to {md_file_path}")
     except Exception as e:
-        print(f"Error saving results: {e}")
+        # Ensure msg is initialized
+        msg = "Error saving narrative to Markdown file."
+        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
         sys.exit(1)
 
 def run_uv_script(script_path, input_csv):
@@ -108,14 +117,27 @@ def run_uv_script(script_path, input_csv):
         result = subprocess.run(command, capture_output=True, text=True, timeout=180)
         print(result.stdout)
         if result.returncode != 0:
-            print(f"Error running script: {result.stderr}")
+            # Ensure msg is initialized
+            msg = f"Error running script {script_path}."
+            log(f"{msg} [red]UNEXPECTED FAILURE[/red] {result.stderr}", last=True)
             sys.exit(result.returncode)
     except subprocess.TimeoutExpired:
-        print("The script timed out.")
+        # Ensure msg is initialized
+        msg = "The script timed out."
+        log(f"{msg} [red]UNEXPECTED FAILURE[/red]", last=True)
         sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error while running script: {e}")
+        # Ensure msg is initialized
+        msg = "Unexpected error while running script."
+        log(f"{msg} [red]UNEXPECTED FAILURE[/red] {e}", last=True)
         sys.exit(1)
+
+def log(message, last=False):
+    """Logs messages to the console."""
+    print(message)
+    if last:
+        # Handle additional logging logic (e.g., saving to a file)
+        pass
 
 def main():
     """Main function to orchestrate the analysis pipeline."""
